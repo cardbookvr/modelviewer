@@ -9,6 +9,8 @@ import com.cardbookvr.renderbox.materials.SolidColorLightingMaterial;
 import com.cardbookvr.renderbox.math.Vector3;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,16 +39,54 @@ public class ModelObject extends RenderObject {
     public Vector3 extentsMin, extentsMax;
 
 
-    public ModelObject(int objFile) {
+    public ModelObject(final int objFile) {
         super();
         extentsMin = new Vector3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
         extentsMax = new Vector3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
 
-        InputStream inputStream = RenderBox.instance.mainActivity.getResources().openRawResource(objFile);
-        if (inputStream == null)
-            return; // error
-        parseObj(inputStream);
-        createMaterial();
+        SolidColorLightingMaterial.setupProgram();
+        enabled = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InputStream inputStream = RenderBox.instance.mainActivity.getResources().openRawResource(objFile);
+                if (inputStream == null)
+                    return; // error
+                parseObj(inputStream);
+                createMaterial();
+
+                enabled = true;
+                float scalar = normalScalar();
+                transform.setLocalScale(scalar, scalar, scalar);
+            }
+        }).start();
+     }
+
+    public ModelObject(final String uri) {
+        super();
+        extentsMin = new Vector3(Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE);
+        extentsMax = new Vector3(Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE);
+
+        SolidColorLightingMaterial.setupProgram();
+        enabled = false;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                File file = new File(uri.toString());
+                FileInputStream fileInputStream;
+                try {
+                    fileInputStream = new FileInputStream(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return; // error
+                }
+                parseObj(fileInputStream);
+                createMaterial();
+                enabled = true;
+                float scalar = normalScalar();
+                transform.setLocalScale(scalar, scalar, scalar);
+            }
+        }).start();
     }
 
     public ModelObject createMaterial() {

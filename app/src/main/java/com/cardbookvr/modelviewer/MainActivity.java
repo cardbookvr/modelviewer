@@ -1,6 +1,8 @@
 package com.cardbookvr.modelviewer;
 
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
@@ -29,7 +31,16 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     public void setup() {
         RenderBox.instance.mainCamera.headTracking = false;
 
-        ModelObject modelObj = new ModelObject(R.raw.teapot);
+        ModelObject modelObj;
+        Uri intentUri = getIntent().getData();
+        if (intentUri != null) {
+            Log.d(TAG, "!!!! intent " + intentUri.getPath());
+            modelObj = new ModelObject(intentUri.getPath());
+        } else {
+            // default object
+            modelObj = new ModelObject(R.raw.teapot);
+        }
+
         float scalar = modelObj.normalScalar();
         model = new Transform()
                 .setLocalPosition(0, 0, -3)
