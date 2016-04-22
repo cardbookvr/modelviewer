@@ -5,13 +5,14 @@ import android.os.Bundle;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.Transform;
-import com.cardbookvr.renderbox.components.Cube;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
 public class MainActivity extends CardboardActivity implements IRenderBox {
     private static final String TAG = "ModelViewer";
     CardboardView cardboardView;
+
+    Transform model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +26,12 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void setup() {
-        new Transform()
-                .setLocalPosition(0,0,-7)
-                .setLocalRotation(45,60,0)
-                .addComponent(new Cube(true));
+        ModelObject modelObj = new ModelObject(R.raw.teapot);
+        float scalar = modelObj.normalScalar();
+        model = new Transform()
+                .setLocalPosition(0, 0, -3)
+                .setLocalScale(scalar, scalar, scalar)
+                .addComponent(modelObj);
     }
 
     @Override
