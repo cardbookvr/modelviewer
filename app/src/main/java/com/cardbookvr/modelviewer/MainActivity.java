@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.Transform;
+import com.cardbookvr.renderbox.math.Quaternion;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
@@ -26,6 +27,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void setup() {
+        RenderBox.instance.mainCamera.headTracking = false;
+
         ModelObject modelObj = new ModelObject(R.raw.teapot);
         float scalar = modelObj.normalScalar();
         model = new Transform()
@@ -36,7 +39,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void preDraw() {
-
+        float[] hAngles = RenderBox.instance.headAngles;
+        Quaternion rot = new Quaternion();
+        rot.setEulerAnglesRad(hAngles[0], hAngles[1], hAngles[2]);
+        model.setLocalRotation(rot.conjugate());
     }
 
     @Override
